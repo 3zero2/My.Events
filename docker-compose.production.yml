@@ -21,10 +21,21 @@ services:
       - caddy
     labels:
       caddy: tickets.mt, www.tickets.mt, tickets.bugeja.com.mt
-      caddy.reverse_proxy: "{{upstreams 80}}"
+      #caddy.reverse_proxy: "{{upstreams 80}}"
       caddy_ingress_network: caddy
+
+      # Catalogue homepage for tickets.mt and www.tickets.mt
+      caddy.@catalogue.host: tickets.mt www.tickets.mt
+      caddy.@catalogue.path: /
+      caddy.0_reverse_proxy: "@catalogue ticketsmt-public-catalogue:4321"
+
+      # All other requests continue to events manager
+      caddy.1_reverse_proxy: "{{upstreams 80}}"
+      
       # required for favicon to work
       caddy.rewrite: "/favicon.ico /manifest-icons/favicon.ico"
+
+      
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
