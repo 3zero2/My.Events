@@ -26,7 +26,7 @@ services:
 
       # Catalogue homepage for tickets.mt and www.tickets.mt
       caddy.@catalogue.host: tickets.mt www.tickets.mt
-      caddy.@catalogue.path: /
+      caddy.@catalogue.path: / /_catalogue/*
       caddy.0_reverse_proxy: "@catalogue ticketsmt-public-catalogue:4321"
 
       # All other requests continue to events manager
