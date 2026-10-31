@@ -3,6 +3,7 @@ import {useAccess} from "../../../hooks/useAccess.ts";
 import {ReactNode} from "react";
 import {getInitials} from "../../../utilites/helpers.ts";
 import {
+    IconCalendarEvent, //added by Joshua for the public catalogue link
     IconLicense,
     IconLifebuoy,
     IconLogout,
@@ -110,6 +111,14 @@ export const GlobalMenu = () => {
         });
     }
 
+    // Added by Joshua to allow users to access the public catalogue
+    links.push({
+        label: t`Browse Events`,
+        icon: IconCalendarEvent,
+        link: "https://tickets.mt/",
+        target: "_blank",
+    });
+    
     links.push({
         label: t`Logout`,
         icon: IconLogout,
