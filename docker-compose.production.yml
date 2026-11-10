@@ -39,18 +39,18 @@ services:
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
-      APP_NAME: tickets.mt
+      APP_NAME: ${APP_NAME}
       APP_KEY: ${APP_KEY:?Set APP_KEY in Dockhand}
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in Dockhand}
       APP_URL: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}
       APP_FRONTEND_URL: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}
       APP_CDN_URL: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}/storage
       APP_DISABLE_REGISTRATION: ${APP_DISABLE_REGISTRATION:-false}
-      APP_SAAS_MODE_ENABLED: "true"
+      APP_SAAS_MODE_ENABLED: ${APP_SAAS_MODE_ENABLED}
       APP_STRIPE_CONNECT_ACCOUNT_TYPE: "standard"
       APP_LICENCE_KEY: ${APP_LICENCE_KEY:-}
       APP_TRUSTED_PROXIES: "*"
-      VITE_APP_NAME: tickets.mt
+      VITE_APP_NAME: ${APP_NAME}
       VITE_APP_LOGO_LIGHT: "${PUBLIC_URL}/storage/branding/logo-darkbg.png"
       VITE_APP_LOGO_DARK: "${PUBLIC_URL}/storage/branding/logo.png"
       VITE_APP_FAVICON: "${PUBLIC_URL}/manifest-icons/favicon.svg?v=5"
@@ -83,7 +83,7 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-tls}
       MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@example.com}
-      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-tickets.mt}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
       STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY:-pk_test_123456789}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_123456789}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_test_123456789}
