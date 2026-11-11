@@ -54,7 +54,7 @@ services:
       VITE_APP_LOGO_LIGHT: "${PUBLIC_URL}/storage/branding/logo-darkbg.png"
       VITE_APP_LOGO_DARK: "${PUBLIC_URL}/storage/branding/logo.png"
       VITE_APP_FAVICON: "${PUBLIC_URL}/manifest-icons/favicon.svg?v=5"
-      VITE_COOKIE_CONSENT_ENABLED: $VITE_COOKIE_CONSENT_ENABLED
+      VITE_COOKIE_CONSENT_ENABLED: ${VITE_COOKIE_CONSENT_ENABLED}
       APP_EMAIL_LOGO_URL: ${APP_EMAIL_LOGO_URL:-}
       APP_EMAIL_LOGO_LINK_URL: ${PUBLIC_URL}
       VITE_FRONTEND_URL: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}
