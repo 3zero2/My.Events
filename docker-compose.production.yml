@@ -20,12 +20,15 @@ services:
       - default
       - caddy
     labels:
-      caddy: tickets.mt, www.tickets.mt, tickets.bugeja.com.mt
-      #caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy: tickets.mt, tickets.bugeja.com.mt
       caddy_ingress_network: caddy
 
-      # Catalogue homepage for tickets.mt and www.tickets.mt
-      caddy.@catalogue.host: tickets.mt www.tickets.mt
+      # Redirect www to the canonical hostname, preserving path and query.
+      caddy_1: www.tickets.mt
+      caddy_1.redir: "https://tickets.mt{uri} permanent"
+
+      # Catalogue homepage for tickets.mt
+      caddy.@catalogue.host: tickets.mt
       caddy.@catalogue.path: / /_catalogue/*
       caddy.0_reverse_proxy: "@catalogue ticketsmt-public-catalogue:4321"
 
