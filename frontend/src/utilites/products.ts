@@ -15,5 +15,5 @@ export const getAttendeeProductPrice = (attendee: Attendee, product: Product): n
     const productPrice = product.prices
         ?.find(price => price.id === attendee.product_price_id);
 
-    return productPrice?.price ?? 0;
+    return (productPrice?.price ?? 0) + (productPrice?.tax_total ?? 0);
 }

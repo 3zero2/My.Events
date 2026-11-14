@@ -8,10 +8,13 @@ use HiEvents\DomainObjects\Generated\AttendeeDomainObjectAbstract;
 use HiEvents\DomainObjects\LocationDomainObject;
 use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\DomainObjects\ProductPriceDomainObject;
+use HiEvents\DomainObjects\TaxAndFeesDomainObject;
+use HiEvents\Helper\Currency;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Resources\Attendee\AttendeeResourcePublic;
+use HiEvents\Services\Domain\Tax\TaxAndFeeCalculationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -19,14 +22,13 @@ class GetAttendeeActionPublic extends BaseAction
 {
     private AttendeeRepositoryInterface $attendeeRepository;
 
-    public function __construct(AttendeeRepositoryInterface $attendeeRepository)
-    {
+    public function __construct(
+        AttendeeRepositoryInterface $attendeeRepository,
+        private readonly TaxAndFeeCalculationService $taxCalculationService,
+    ) {
         $this->attendeeRepository = $attendeeRepository;
     }
 
-    /**
-     * @todo move to handler
-     */
     public function __invoke(int $eventId, string $attendeeShortId): JsonResponse|Response
     {
         $attendee = $this->attendeeRepository
@@ -35,6 +37,9 @@ class GetAttendeeActionPublic extends BaseAction
                 nested: [
                     new Relationship(
                         domainObject: ProductPriceDomainObject::class,
+                    ),
+                    new Relationship(
+                        domainObject: TaxAndFeesDomainObject::class,
                     ),
                 ], name: 'product'))
             ->loadRelation(new Relationship(
@@ -56,6 +61,12 @@ class GetAttendeeActionPublic extends BaseAction
 
         if (! $attendee) {
             return $this->notFoundResponse();
+        }
+
+        $product = $attendee->getProduct();
+        foreach ($product?->getProductPrices() ?? [] as $price) {
+            $taxAndFees = $this->taxCalculationService->calculateTaxAndFeesForProduct($product, $price->getPrice());
+            $price->setTaxTotal(Currency::round($taxAndFees->taxTotal));
         }
 
         return $this->resourceResponse(AttendeeResourcePublic::class, $attendee);
