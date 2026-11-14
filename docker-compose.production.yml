@@ -92,7 +92,7 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_123456789}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_test_123456789}
       APP_TAX_DEFAULT_VAT_COUNTRY: ${APP_TAX_DEFAULT_VAT_COUNTRY}
-      APP_TAX_DEFAULT_VAT_RATE: {APP_TAX_DEFAULT_VAT_RATE}
+      APP_TAX_DEFAULT_VAT_RATE: ${APP_TAX_DEFAULT_VAT_RATE}
       
     volumes:
       - /home/pi/AppData/tickets/storage:/app/backend/storage
