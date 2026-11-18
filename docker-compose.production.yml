@@ -32,6 +32,11 @@ services:
       caddy.@catalogue.path: / /_catalogue/*
       caddy.0_reverse_proxy: "@catalogue ticketsmt-public-catalogue:4321"
 
+      # Help Centre, preserving the /_docs/ prefix.
+      caddy.@docs.host: tickets.mt
+      caddy.@docs.path: /_docs /_docs/*
+      caddy.1_reverse_proxy: "@docs ticketsmt-help-centre:8080"
+
       # All other requests continue to events manager
       caddy.1_reverse_proxy: "{{upstreams 80}}"
       
