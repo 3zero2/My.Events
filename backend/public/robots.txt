@@ -1,2 +1,5 @@
 User-agent: *
 Disallow:
+
+Sitemap: https://tickets.mt/sitemap.xml
+Sitemap: https://tickets.mt/_docs/sitemap-index.xml
