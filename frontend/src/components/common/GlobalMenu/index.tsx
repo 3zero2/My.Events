@@ -118,6 +118,14 @@ export const GlobalMenu = () => {
         link: "https://tickets.mt/",
         target: "_blank",
     });
+
+    // Added by Joshua to allow users to access the help centre
+    links.push({
+        label: t`Help Centre`,
+        icon: IconLifebuoy,
+        link: "https://tickets.mt/_docs",
+        target: "_blank",
+    });
     
     links.push({
         label: t`Logout`,
