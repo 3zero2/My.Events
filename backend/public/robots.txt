@@ -3,3 +3,4 @@ Disallow:
 
 Sitemap: https://tickets.mt/sitemap.xml
 Sitemap: https://tickets.mt/_docs/sitemap-index.xml
+Sitemap: https://tickets.mt/_organisers/sitemap.xml
