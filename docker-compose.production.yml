@@ -37,8 +37,13 @@ services:
       caddy.@docs.path: /_docs /_docs/*
       caddy.1_reverse_proxy: "@docs ticketsmt-help-centre:8080"
 
+      # For Organisers, preserving the /_organisers/ prefix.
+      caddy.@marketing.host: tickets.mt
+      caddy.@marketing.path_regexp: "^/_organisers(/|$)"
+      caddy.2_reverse_proxy: "@marketing ticketsmt-marketing:8080"
+
       # All other requests continue to events manager
-      caddy.2_reverse_proxy: "{{upstreams 80}}"
+      caddy.3_reverse_proxy: "{{upstreams 80}}"
       
       # required for favicon to work
       caddy.rewrite: "/favicon.ico /manifest-icons/favicon.ico"
