@@ -249,8 +249,8 @@
         }
 
         .invoice-notes {
-            margin: 30px 0;
-            padding: 15px;
+            margin: 16px 0 8px;
+            padding: 12px;
             background-color: #f9f9fb;
             border-radius: 4px;
             line-height: 1.6;
@@ -259,8 +259,8 @@
         }
 
         .invoice-footer {
-            margin-top: 30px;
-            padding-top: 20px;
+            margin-top: 8px;
+            padding-top: 8px;
             border-top: 1px solid #e6e6e6;
             text-align: center;
             line-height: 1.6;
@@ -495,15 +495,16 @@
 @endif
 
 <div class="invoice-footer">
-    @if($eventSettings->getSupportEmail())
-        <p>{{ __('For any queries, please contact us at') }} {{ $eventSettings->getSupportEmail() }}</p>
-    @endif
+    <p>{{ __('For any queries, please contact the event organiser at :email', ['email' => $eventSettings->getSupportEmail() ?: $organizer->getEmail()]) }}</p>
+    <p>{{ __('Ticketing services provided by tickets.mt, VAT Reg. No: 22755327, Exemption Number: EXO6001. VAT Exempt.') }}</p>
 
     @if((bool) $eventSettings->getInvoiceTaxDetails())
         <div class="tax-info">
             <p><strong>{{ __('Tax Information') }}:</strong> {!! $eventSettings->getInvoiceTaxDetails() !!}</p>
         </div>
     @endif
+
+    <img src="{{ resource_path('images/tickets-mt-logo.jpg') }}" alt="tickets.mt" style="width: 104px; margin-top: 8px; page-break-before: avoid;">
 </div>
 </body>
 </html>
