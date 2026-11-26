@@ -63,6 +63,7 @@ services:
       APP_STRIPE_CONNECT_ACCOUNT_TYPE: "standard"
       APP_LICENCE_KEY: ${APP_LICENCE_KEY:-}
       APP_TRUSTED_PROXIES: "*"
+      APP_API_RATE_LIMIT_PER_MINUTE: 20000
       VITE_APP_NAME: ${APP_NAME}
       VITE_APP_LOGO_LIGHT: "${PUBLIC_URL}/storage/branding/logo-darkbg.png"
       VITE_APP_LOGO_DARK: "${PUBLIC_URL}/storage/branding/logo.png"
