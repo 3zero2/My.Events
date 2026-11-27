@@ -9,9 +9,12 @@ use HiEvents\DomainObjects\TaxAndFeesDomainObject;
 use HiEvents\Http\Actions\Attendees\GetAttendeeActionPublic;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
+use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Resources\Attendee\AttendeeResourcePublic;
 use HiEvents\Services\Domain\Tax\TaxAndFeeCalculationService;
 use HiEvents\Services\Domain\Tax\TaxAndFeeRollupService;
+use HiEvents\Services\Domain\TicketResale\TicketResaleStateService;
+use HiEvents\Services\Domain\TicketTransfer\TicketTransferStateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Mockery;
@@ -64,6 +67,9 @@ class GetAttendeeActionPublicTest extends TestCase
         $response = new JsonResponse;
         $action = Mockery::mock(GetAttendeeActionPublic::class, [
             $repository,
+            Mockery::mock(EventRepositoryInterface::class),
+            Mockery::mock(TicketTransferStateService::class),
+            Mockery::mock(TicketResaleStateService::class),
             new TaxAndFeeCalculationService(new TaxAndFeeRollupService),
         ])->makePartial()->shouldAllowMockingProtectedMethods();
         $action->shouldReceive('resourceResponse')
