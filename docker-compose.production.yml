@@ -1,0 +1,151 @@
+# Add this file to the root of your Hi.Events GitHub fork.
+# Dockhand: Compose file = docker-compose.production.yml; Context directory = .
+# Requires the existing Caddy Docker Proxy on the external network named caddy.
+# Use a NEW Dockhand stack name to create fresh, separate data volumes.
+services:
+  all-in-one:
+    image: ${HI_EVENTS_IMAGE:?Set HI_EVENTS_IMAGE to the image from GitHub Actions}
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        mkdir -p /app/backend/storage/app/public \
+          /app/backend/storage/framework/cache/data \
+          /app/backend/storage/framework/sessions \
+          /app/backend/storage/framework/views \
+          /app/backend/storage/logs
+        exec /startup.sh
+    networks:
+      - default
+      - caddy
+    labels:
+      caddy: tickets.mt, tickets.bugeja.com.mt
+      caddy_ingress_network: caddy
+
+      # Redirect www to the canonical hostname, preserving path and query.
+      caddy_1: www.tickets.mt
+      caddy_1.redir: "https://tickets.mt{uri} permanent"
+
+      # Catalogue homepage for tickets.mt
+      caddy.@catalogue.host: tickets.mt
+      caddy.@catalogue.path: / /_catalogue/*
+      caddy.0_reverse_proxy: "@catalogue ticketsmt-public-catalogue:4321"
+
+      # Help Centre, preserving the /_docs/ prefix.
+      caddy.@docs.host: tickets.mt
+      caddy.@docs.path: /_docs /_docs/*
+      caddy.1_reverse_proxy: "@docs ticketsmt-help-centre:8080"
+
+      # For Organisers, preserving the /_organisers/ prefix.
+      caddy.@marketing.host: tickets.mt
+      caddy.@marketing.path_regexp: "^/_organisers(/|$)"
+      caddy.2_reverse_proxy: "@marketing ticketsmt-marketing:8080"
+
+      # All other requests continue to events manager
+      caddy.3_reverse_proxy: "{{upstreams 80}}"
+      
+      # required for favicon to work
+      caddy.rewrite: "/favicon.ico /manifest-icons/favicon.ico"
+
+      
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_NAME: ${APP_NAME}
+      APP_KEY: ${APP_KEY:?Set APP_KEY in Dockhand}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in Dockhand}
+      APP_URL: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}
+      APP_FRONTEND_URL: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}
+      APP_CDN_URL: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}/storage
+      APP_DISABLE_REGISTRATION: ${APP_DISABLE_REGISTRATION:-false}
+      APP_SAAS_MODE_ENABLED: ${APP_SAAS_MODE_ENABLED}
+      APP_STRIPE_CONNECT_ACCOUNT_TYPE: "standard"
+      APP_LICENCE_KEY: ${APP_LICENCE_KEY:-}
+      APP_TRUSTED_PROXIES: "*"
+      APP_API_RATE_LIMIT_PER_MINUTE: 20000
+      VITE_APP_NAME: ${APP_NAME}
+      VITE_APP_LOGO_LIGHT: "${PUBLIC_URL}/storage/branding/logo-darkbg.png"
+      VITE_APP_LOGO_DARK: "${PUBLIC_URL}/storage/branding/logo.png"
+      VITE_APP_FAVICON: "${PUBLIC_URL}/manifest-icons/favicon.svg?v=5"
+      VITE_COOKIE_CONSENT_ENABLED: ${VITE_COOKIE_CONSENT_ENABLED}
+      APP_EMAIL_LOGO_URL: ${APP_EMAIL_LOGO_URL:-}
+      APP_EMAIL_LOGO_LINK_URL: ${PUBLIC_URL}
+      VITE_FRONTEND_URL: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}
+      VITE_PRIVACY_URL: ${VITE_PRIVACY_URL}
+      VITE_TOS_URL: ${VITE_TOS_URL}
+      VITE_HIDE_ABOUT_LINK: ${VITE_HIDE_ABOUT_LINK}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      VITE_API_URL_CLIENT: ${PUBLIC_URL:?Set PUBLIC_URL in Dockhand}/api
+      VITE_API_URL_SERVER: http://localhost:80/api
+      VITE_STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLIC_KEY:-pk_test_123456789}
+      LOG_CHANNEL: stderr
+      DATABASE_URL: postgresql://hievents:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Dockhand}@postgres:5432/hievents
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
+      QUEUE_CONNECTION: redis
+      CACHE_DRIVER: redis
+      SESSION_DRIVER: redis
+      WEBHOOK_QUEUE_NAME: webhook-queue
+      FILESYSTEM_PUBLIC_DISK: public
+      FILESYSTEM_PRIVATE_DISK: local
+      MAIL_MAILER: ${MAIL_MAILER:-log}
+      MAIL_DRIVER: ${MAIL_MAILER:-log}
+      MAIL_HOST: ${MAIL_HOST:-localhost}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-tls}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@example.com}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY:-pk_test_123456789}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_123456789}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_test_123456789}
+      APP_TAX_DEFAULT_VAT_COUNTRY: ${APP_TAX_DEFAULT_VAT_COUNTRY}
+      APP_TAX_DEFAULT_VAT_RATE: ${APP_TAX_DEFAULT_VAT_RATE}
+      
+    volumes:
+      - /home/pi/AppData/tickets/storage:/app/backend/storage
+      # For web manifest icons
+      - /home/pi/AppData/tickets/storage/app/public/branding/manifest-icons:/app/frontend/dist/client/manifest-icons:ro
+      - /home/pi/AppData/tickets/storage/app/public/branding/site.webmanifest:/app/frontend/dist/client/site.webmanifest:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hievents
+      POSTGRES_USER: hievents
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Dockhand}
+    volumes:
+      - /home/pi/AppData/tickets/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - /home/pi/AppData/tickets/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+networks:
+  default: {}
+  caddy:
+    external: true
+    name: caddy

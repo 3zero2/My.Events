@@ -11,6 +11,8 @@ use HiEvents\DomainObjects\LocationDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\DomainObjects\ProductPriceDomainObject;
+use HiEvents\DomainObjects\TaxAndFeesDomainObject;
+use HiEvents\Helper\Currency;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
@@ -18,6 +20,7 @@ use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Resources\Attendee\AttendeeResourcePublic;
 use HiEvents\Services\Domain\TicketResale\TicketResaleStateService;
 use HiEvents\Services\Domain\TicketTransfer\TicketTransferStateService;
+use HiEvents\Services\Domain\Tax\TaxAndFeeCalculationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -30,13 +33,11 @@ class GetAttendeeActionPublic extends BaseAction
         private readonly EventRepositoryInterface $eventRepository,
         private readonly TicketTransferStateService $ticketTransferStateService,
         private readonly TicketResaleStateService $ticketResaleStateService,
+        private readonly TaxAndFeeCalculationService $taxCalculationService,
     ) {
         $this->attendeeRepository = $attendeeRepository;
     }
 
-    /**
-     * @todo move to handler
-     */
     public function __invoke(int $eventId, string $attendeeShortId): JsonResponse|Response
     {
         $attendee = $this->attendeeRepository
@@ -45,6 +46,9 @@ class GetAttendeeActionPublic extends BaseAction
                 nested: [
                     new Relationship(
                         domainObject: ProductPriceDomainObject::class,
+                    ),
+                    new Relationship(
+                        domainObject: TaxAndFeesDomainObject::class,
                     ),
                 ], name: 'product'))
             ->loadRelation(new Relationship(
@@ -75,6 +79,12 @@ class GetAttendeeActionPublic extends BaseAction
 
             $this->ticketTransferStateService->describe(collect([$attendee]), $attendee->getOrder(), $event);
             $this->ticketResaleStateService->describe(collect([$attendee]), $event, viewerHoldsOrderLink: false);
+        }
+       
+        $product = $attendee->getProduct();
+        foreach ($product?->getProductPrices() ?? [] as $price) {
+            $taxAndFees = $this->taxCalculationService->calculateTaxAndFeesForProduct($product, $price->getPrice());
+            $price->setTaxTotal(Currency::round($taxAndFees->taxTotal));
         }
 
         return $this->resourceResponse(AttendeeResourcePublic::class, $attendee);

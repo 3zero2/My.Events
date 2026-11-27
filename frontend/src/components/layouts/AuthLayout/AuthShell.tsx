@@ -33,8 +33,8 @@ export interface TicketPreview {
 }
 
 const SAMPLE_TICKET: TicketPreview = {
-    title: 'Dublin Jazz Festival',
-    meta: 'Sat, Aug 16 · 8:00 PM · Dublin',
+    title: 'Malta Music Festival',
+    meta: 'Sat, Aug 15 · 9:00 PM · Floriana',
 };
 
 const FeaturePanel = ({ticketPreview}: { ticketPreview?: Partial<TicketPreview> }) => {

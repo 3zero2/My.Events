@@ -345,6 +345,9 @@ const getCurrencyForTimezone = (timezone: string | undefined): CurrencyCode | un
     timezone ? currencyByTimezone[timezone] : undefined;
 
 export const getUserCurrency = (): CurrencyCode => {
+    // Temporarily force EUR for all users
+    return 'EUR';
+    
     if (typeof window === 'undefined') return 'USD';
 
     try {

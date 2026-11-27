@@ -40,7 +40,7 @@ export const VatSettings = ({organizerId, stripeCountry}: VatSettingsProps) => {
 
             {!needsVatInfo && (
                 <Text size="sm" c="dimmed" mb="lg" lh={1.6}>
-                    {t`VAT treatment for platform fees: EU VAT-registered businesses can use the reverse charge mechanism (0% - Article 196 of VAT Directive 2006/112/EC). Non-VAT registered businesses are charged Irish VAT at 23%.`}
+                    {t`VAT treatment for platform fees: Platform fees are quoted exclusive of VAT. Any applicable VAT is determined in accordance with Maltese and EU VAT legislation, taking into account the platform's VAT registration status and the organiser's circumstances.`}
                 </Text>
             )}
 

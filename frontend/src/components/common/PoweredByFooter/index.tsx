@@ -90,7 +90,8 @@ export const PoweredByFooter = ({brandingRemoved, ...props}: PoweredByFooterProp
         </>
     );
 
-    return (
+    return null;
+    /* return (
         <div {...props} className={classNames(classes.poweredBy, props.className)}>
             <div className={classes.poweredByText}>
                 {footerContent}
@@ -101,5 +102,5 @@ export const PoweredByFooter = ({brandingRemoved, ...props}: PoweredByFooterProp
                 </div>
             )}
         </div>
-    );
+    ); */
 }
